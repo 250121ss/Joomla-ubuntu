@@ -1,0 +1,87 @@
+sudo apt update
+
+====   Install Joomla Dependencies  === 
+
+sudo apt install mariadb-server mariadb-client nginx -y
+
+=== Install PHP and its Extensions  === 
+
+sudo apt install php-gd php-xmlrpc php-curl php-intl php-imagick php-mysql php-zip php-xml php-mbstring php-bcmath
+
+
+====  Configure PHP Settings for Joomla  ===
+
+sudo vim /etc/php/8.1/fpm/php.ini
+
+output_buffering = off
+upload_tmp_dir = "/tmp"
+upload_max_filesize = 100M
+post_max_size = 100M
+
+sudo systemctl restart php8.1-fpm.service
+
+===  Create Joomla Database   === 
+
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+
+sudo mysql_secure_installation
+
+sudo mysql -u root -p
+
+CREATE DATABASE joomladb;
+CREATE USER 'joomlauser'@'localhost' IDENTIFIED BY 'mypassword'; 
+GRANT ALL PRIVILEGES ON joomladb.* TO 'joomlauser'@'localhost'; 
+FLUSH PRIVILEGES; 
+exit;
+
+
+===  Download Joomla Installer Package  ===
+
+Latest version =  https://downloads.joomla.org/
+
+wget https://downloads.joomla.org/cms/joomla4/4-3-4/Joomla_4-3-4-Stable-Full_Package.zip
+
+sudo mkdir -p /var/www/html/joomla 
+sudo unzip Joomla*.zip -d /var/www/html/joomla
+
+===  Modify the permissions directly as follows:  ===
+
+sudo chown -R www-data:www-data /var/www/html/
+sudo chmod -R 755 /var/www/html/
+
+==== Nginx Configuration for Joomla ===
+
+sudo vi /etc/nginx/conf.d/joomla.conf
+
+
+
+server {
+	server_name myjoomla.example.com;
+	root /var/www/html/joomla;
+
+	index index.php index.html;
+
+	# Prevent access to certain file extensions
+	location ~\.(ini|log|conf)$ {
+		deny all;
+	}
+
+	location ~ \.php$ {
+        # NOTE: You should have "cgi.fix_pathinfo = 0;" in php.ini
+        include fastcgi_params;
+        fastcgi_intercept_errors on;
+        fastcgi_pass unix:/run/php/php-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+	}
+
+}
+
+
+=== 
+
+sudo systemctl restart nginx
+
+
+http://134.94.3290/
+
