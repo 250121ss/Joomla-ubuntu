@@ -6,7 +6,7 @@ sudo apt install mariadb-server mariadb-client nginx -y
 
 === Install PHP and its Extensions  === 
 
-sudo apt install php-gd php-xmlrpc php-curl php-intl php-imagick php-mysql php-zip php-xml php-mbstring php-bcmath
+sudo apt install php-gd php-xmlrpc php-curl php-intl php-imagick php-mysql php-zip php-xml php-mbstring php-bcmath php-fpm
 
 
 ====  Configure PHP Settings for Joomla  ===
